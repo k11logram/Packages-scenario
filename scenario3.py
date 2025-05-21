@@ -76,7 +76,7 @@ def train(agent, strategy, num_episodes=2000, max_steps=400):
             steps += 1
         agent.update_parameters(strategy)
         rewards.append(total_reward)
-        if (episode+1) % 200 == 0:
+        if (episode + 1) % 200 == 0:
             avg = np.mean(rewards[-200:])
             print(f"Ep {episode+1:4d} | {strategy:12s} | Avg Reward: {avg:5.1f}")
     return rewards, agent
@@ -89,9 +89,8 @@ def run_final_policy(agent, env, max_steps=400):
     done = False
     steps = 0
     while not done and steps < max_steps:
-        # Always use greedy policy for final path
         action = np.argmax(agent.Q[state])
-        _, new_pos, new_pkgs_left, done = env.takeAction(action)
+        cell_type, new_pos, new_pkgs_left, done = env.takeAction(action)
         state = agent.get_state(new_pos, new_pkgs_left)
         pkgs_left = new_pkgs_left
         steps += 1
@@ -114,9 +113,10 @@ def main():
 
     # Plot learning curves
     plt.figure(figsize=(12, 6))
-    for strategy, color in zip(strategies, ['blue', 'orange']):
+    colors = {'epsilon_greedy': 'blue', 'softmax': 'orange'}
+    for strategy in strategies:
         smoothed = np.convolve(results[strategy], np.ones(200)/200, mode='valid')
-        plt.plot(smoothed, label=f"{strategy}", color=color)
+        plt.plot(smoothed, label=strategy, color=colors[strategy])
     plt.xlabel("Episode")
     plt.ylabel("Average Total Reward (200-episode MA)")
     plt.title("Scenario 3: Ordered RGB Package Collection")
@@ -124,12 +124,16 @@ def main():
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig('scenario3_learning_curve.png', dpi=120)
+    print("Learning curve saved to scenario3_learning_curve.png")
 
     # Show final path for each strategy
     for strategy in strategies:
+        print(f"\n=== Generating Final Path for {strategy} ===")
         env = FourRooms('rgb', stochastic=args.stochastic)
         run_final_policy(agents[strategy], env)
-        env.showPath(-1, savefig=f'scenario3_final_path_{strategy}.png')
+        path_filename = f'scenario3_final_path_{strategy}.png'
+        env.showPath(-1, savefig=path_filename)
+        print(f"Final path saved to {path_filename}")
 
 if __name__ == "__main__":
     main()
