@@ -10,19 +10,19 @@ class QLearningAgent:
         self.stochastic = stochastic
         self.alpha = 0.12
         self.gamma = 0.97
-        # Epsilon-greedy parameters
+        #Epsilon-greedy parameters
         self.epsilon = 1.0
         self.epsilon_decay = 0.996
         self.min_epsilon = 0.05
-        # Softmax parameters
+        #Softmax parameters
         self.temp = 3.0
         self.temp_decay = 0.995
         self.min_temp = 0.1
-        # Q-table: state (x, y, pkgs_left) -> 4 actions
+        #Q-table: state (x, y, pkgs_left) -> 4 actions
         self.Q = defaultdict(lambda: np.zeros(4))
 
     def get_state(self, pos, pkgs_left):
-        # pkgs_left: 3, 2, 1, 0 (must collect in order)
+        #pkgs_left: 3, 2, 1, 0 (we must collect in order)
         return (pos[0], pos[1], pkgs_left)
 
     def epsilon_greedy(self, state):
@@ -52,7 +52,7 @@ def train(agent, strategy, num_episodes=2000, max_steps=400):
     for episode in range(num_episodes):
         env.newEpoch()
         pos = env.getPosition()
-        pkgs_left = env.getPackagesRemaining()  # 3 at start
+        pkgs_left = env.getPackagesRemaining()  #3 at the start
         state = agent.get_state(pos, pkgs_left)
         total_reward = 0
         steps = 0
